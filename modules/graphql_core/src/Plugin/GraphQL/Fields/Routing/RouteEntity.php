@@ -6,7 +6,7 @@ use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Language\Language;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\TypedData\TranslatableInterface;
@@ -167,7 +167,7 @@ class RouteEntity extends FieldPluginBase implements ContainerFactoryPluginInter
    */
   protected function resolveEntityTranslation(EntityInterface $entity, Url $url, array $args, ResolveInfo $info) {
     $resolve = $this->subrequestBuffer->add($url, function () {
-      return $this->languageManager->getCurrentLanguage(Language::TYPE_CONTENT)->getId();
+      return $this->languageManager->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
     });
 
     return function ($value, array $args, ResolveInfo $info) use ($resolve, $entity) {

@@ -3,7 +3,7 @@
 namespace Drupal\graphql_core\Plugin\GraphQL\Fields;
 
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
-use Drupal\Core\Path\AliasManagerInterface;
+use Drupal\path_alias\AliasManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -25,9 +25,9 @@ class Alias extends Path implements ContainerFactoryPluginInterface {
   /**
    * Instance of an alias manager.
    *
-   * @var \Drupal\Core\Path\AliasManagerInterface
+   * @var \Drupal\path_alias\AliasManagerInterface
    */
-  protected $aliasManager;
+  protected AliasManagerInterface $aliasManager;
 
   /**
    * {@inheritdoc}
@@ -57,7 +57,7 @@ class Alias extends Path implements ContainerFactoryPluginInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $pluginId, $pluginDefinition) {
-    return new static($configuration, $pluginId, $pluginDefinition, $container->get('path.alias_manager'));
+    return new static($configuration, $pluginId, $pluginDefinition, $container->get('path_alias.manager'));
   }
 
 }

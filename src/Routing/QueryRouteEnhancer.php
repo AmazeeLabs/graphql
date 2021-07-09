@@ -2,15 +2,29 @@
 
 namespace Drupal\graphql\Routing;
 
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Routing\Enhancer\RouteEnhancerInterface;
-use Drupal\graphql\GraphQL\QueryProvider\QueryProviderInterface;
-use Drupal\graphql\Utility\JsonHelper;
-use GraphQL\Server\Helper;
+use Drupal\graphql\QueryMapProvider\QueryMapProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Route;
 
 class QueryRouteEnhancer implements RouteEnhancerInterface {
+
+  /**
+   * The query map provider service.
+   *
+   * @var \Drupal\graphql\QueryMapProvider\QueryMapProviderInterface
+   */
+  protected $queryMapProvider;
+
+  /**
+   * Creates a new QueryRouteEnhancer instance.
+   *
+   * @param \Drupal\graphql\QueryMapProvider\QueryMapProviderInterface $queryMapProvider
+   *   The query map provider service.
+   */
+  public function __construct(QueryMapProviderInterface $queryMapProvider) {
+    $this->queryMapProvider = $queryMapProvider;
+  }
 
   /**
    * {@inheritdoc}
@@ -23,97 +37,149 @@ class QueryRouteEnhancer implements RouteEnhancerInterface {
    * {@inheritdoc}
    */
   public function enhance(array $defaults, Request $request) {
-    $helper = new Helper();
-    $method = $request->getMethod();
-    $body = $this->extractBody($request);
-    $query = $this->extractQuery($request);
-    $operations = $helper->parseRequestParams($method, $body, $query);
+    if (!empty($defaults['_controller'])) {
+      return $defaults;
+    }
+
+    if ($enhanced = $this->enhanceSingle($defaults, $request)) {
+      return $enhanced;
+    }
+
+    if ($enhanced = $this->enhanceBatch($defaults, $request)) {
+      return $enhanced;
+    }
 
     // By default we assume a 'single' request. This is going to fail in the
     // graphql processor due to a missing query string but at least provides
     // the right format for the client to act upon.
     return $defaults + [
       '_controller' => $defaults['_graphql']['single'],
-      'operations' => $operations,
     ];
   }
 
   /**
-   * Extracts the query parameters from a request.
+   * Attempts to enhance the request as a batch query.
    *
+   * @param array $defaults
+   *   The controller defaults.
    * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The http request object.
+   *   The request object.
    *
-   * @return array
-   *   The normalized query parameters.
+   * @return array|boolean
+   *   The enhanced controller defaults.
    */
-  protected function extractQuery(Request $request) {
-    return JsonHelper::decodeParams($request->query->all());
+  protected function enhanceBatch(array $defaults, Request $request) {
+    $queries = $this->filterRequestValues($request, function ($index) {
+      return is_numeric($index);
+    });
+
+    if (!isset($queries[0])) {
+      return FALSE;
+    }
+
+    if (array_keys($queries) !== range(0, count($queries) - 1)) {
+      // If this is not a continuously numeric array, don't do anything.
+      return FALSE;
+    }
+
+    return $defaults + [
+      '_controller' => $defaults['_graphql']['multiple'],
+      'queries' => $queries,
+      'type' => 'batch',
+    ];
   }
 
   /**
-   * Extracts the body parameters from a request.
+   * Attempts to enhance the request as a single query.
    *
+   * @param array $defaults
+   *   The controller defaults.
    * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The http request object.
+   *   The request object.
    *
-   * @return array
-   *   The normalized body parameters.
+   * @return array|boolean
+   *   The enhanced controller defaults.
    */
-  protected function extractBody(Request $request) {
-    $values = [];
+  protected function enhanceSingle(array $defaults, Request $request) {
+    $values = $this->filterRequestValues($request, function ($index) {
+       return in_array($index, ['query', 'variables', 'id', 'version']);
+    }) + [
+      'query' => '',
+      'variables' => [],
+      'id' => NULL,
+      'version' => NULL,
+    ];
 
-    // Extract the request content.
-    if ($content = json_decode($request->getContent(), TRUE)) {
-      $values = array_merge($values, JsonHelper::decodeParams($content));
+    if (!$query = $this->getQuery($values['query'], $values['id'], $values['version'])) {
+      return FALSE;
     }
 
-    if (stripos($request->headers->get('content-type'), 'multipart/form-data') !== FALSE) {
-      return $this->extractMultipart($request, $values);
-    }
-
-    return $values;
+    return $defaults + [
+      '_controller' => $defaults['_graphql']['single'],
+      'query' => is_string($query) ? $query : '',
+      'variables' => is_array($values['variables']) ? $values['variables'] : [],
+      // If the 'query' parameter was empty and we reached this point, this is
+      // a persisted query.
+      'persisted' => empty($values['query']),
+      'type' => 'single',
+    ];
   }
 
   /**
-   * Handles file uploads from multipart/form-data requests.
+   * Filters the request body or query parameters using a filter callback.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   * @param callable $filter
+   *   The filter callback.
    *
    * @return array
-   *   The query parameters with added file uploads.
+   *   The filtered request parameters.
    */
-  protected function extractMultipart(Request $request, $values) {
-    // The request body parameters might contain file upload mutations. We treat
-    // them according to the graphql multipart request specification.
-    //
-    // @see https://github.com/jaydenseric/graphql-multipart-request-spec#server
-    if ($body = JsonHelper::decodeParams($request->request->all())) {
-      // Flatten the operations array if it exists.
-      $operations = isset($body['operations']) && is_array($body['operations']) ? $body['operations'] : [];
-      $values = array_merge($values, $body, $operations);
-    }
+  protected function filterRequestValues(Request $request, callable $filter) {
+    $content = $request->getContent();
 
-    // According to the graphql multipart request specification, uploaded files
-    // are referenced to variable placeholders in a map. Here, we resolve this
-    // map by assigning the uploaded files to the corresponding variables.
-    if (!empty($values['map']) && is_array($values['map']) && $files = $request->files->all()) {
-      foreach ($files as $key => $file) {
-        if (!isset($values['map'][$key])) {
-          continue;
-        }
+    $values = !empty($content) ? json_decode($content, TRUE) : $request->query->all();
 
-        $paths = (array) $values['map'][$key];
-        foreach ($paths as $path) {
-          $path = explode('.', $path);
+    // PHP 5.5.x does not yet support the ARRAY_FILTER_USE_KEYS constant.
+    $keys = array_filter(array_keys($values), $filter);
+    $values = array_intersect_key($values, array_flip($keys));
 
-          if (NestedArray::keyExists($values, $path)) {
-            NestedArray::setValue($values, $path, $file);
-          }
-        }
+    $values = array_map(function ($value) {
+      if (!is_string($value)) {
+        return $value;
       }
-    }
+
+      $decoded = json_decode($value, TRUE);
+      return ($decoded != $value) && $decoded ? $decoded : $value;
+    }, $values);
 
     return $values;
   }
 
+  /**
+   * Resolves a query string.
+   *
+   * @param $query
+   *   The query string. If this is set, it will be returned immediately.
+   * @param $id
+   *   The id of a query from the query map.
+   * @param $version
+   *   The version of the query map to load the query from.
+   *
+   * @return string|null
+   *   The resolved query string.
+   */
+  protected function getQuery($query, $id, $version) {
+    if (!empty($query)) {
+      return $query;
+    }
+
+    if (!empty($id) && !empty($version)) {
+      return $this->queryMapProvider->getQuery($version, $id);
+    }
+
+    return NULL;
+  }
 
 }

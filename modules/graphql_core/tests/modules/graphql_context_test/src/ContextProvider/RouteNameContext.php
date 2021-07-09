@@ -31,14 +31,6 @@ class RouteNameContext implements ContextProviderInterface {
   /**
    * {@inheritdoc}
    */
-  public function __construct(RouteMatchInterface $routeMatch) {
-    $this->contextDefinition = new ContextDefinition('string', $this->t('The current path'));
-    $this->routeMatch = $routeMatch;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getRuntimeContexts(array $unqualifiedContextIds) {
     $name = $this->routeMatch->getRouteName();
     return ['route_name' => new Context($this->contextDefinition, $name)];
@@ -50,6 +42,14 @@ class RouteNameContext implements ContextProviderInterface {
   public function getAvailableContexts() {
     $context = new Context($this->contextDefinition);
     return ['route_name' => $context];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(RouteMatchInterface $routeMatch) {
+    $this->contextDefinition = new ContextDefinition('string', $this->t('The current path'));
+    $this->routeMatch = $routeMatch;
   }
 
 }

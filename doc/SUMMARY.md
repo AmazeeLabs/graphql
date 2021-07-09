@@ -1,27 +1,21 @@
 # Summary
 
-* [Introduction](../README.md)
-
-## Getting started
-
-* [Getting started](getting-started/readme.md)
-
-## Queries
-
-* [Introduction](queries/readme.md)
-* [Querying nodes](queries/querying-nodes.md)
-* [Querying taxonomies](queries/querying-taxonomies.md)
-* [Querying routes](queries/routes.md)
-* [Query Fragments](queries/query-fragments.md)
-* [Variables](queries/variables.md)
-* [Filters](queries/filters.md)
-
-## Mutations
-
-* [Introduction](mutations/readme.md)
-* [Creating mutation plugins](mutations/creating-mutation-plugins.md)
-
-## Authentication
-
-* [Introduction](authentication/introduction.md)
-
+* [Getting started](README)
+  * [Installing](install/README.md)
+  * [Exploring (FOR REVIEW)](start/graphiql.md)
+  * [Running tests (FOR REVIEW)](tests/README.md)
+* [Concepts (TODO)](concepts/README.md)
+  * [GraphQL for Drupal (REVIEW)](concepts/drupal.md)
+  * [Decoupling Drupal (TODO)](concepts/headless.md)
+* [Front-end (TODO)](consumer/README.md)
+  * [Full drupal (TODO)](front/drupal.md)
+  * [Symfony 3 (TODO)](consumer/sf3.md)
+  * [Vanilla React (TODO)](front/js.md)
+  * [React + Relay (TODO)](front/relay.md)
+* [Back-end (TODO)](back/README.md)
+  * [Builtin schema and fields (TODO)](back/schema.md)
+  * [The PHP library (TODO)](back/youshido.md)
+  * [Exposing new fields (TODO)](back/fields.md)
+  * [Exposing new types (TODO)](back/types.md)
+  * [Debugging (TODO)](back/debug.md)
+* [Contributing (REVIEW)](contrib/README.md)

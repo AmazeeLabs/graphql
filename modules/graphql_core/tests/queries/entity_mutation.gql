@@ -1,4 +1,4 @@
-mutation($node: NodeArticleCreateInput!) {
+mutation($node: NodeArticleInput!) {
   create:createNodeArticle (input: $node) {
     entity {
       uuid:entityUuid

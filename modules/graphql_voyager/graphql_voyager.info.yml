@@ -1,0 +1,13 @@
+name: GraphQL Voyager
+type: module
+description: 'Adds a page with GraphQL Voyager (https://apis.guru/graphql-voyager/).'
+package: GraphQL
+# core: 8.x
+dependencies:
+  - graphql
+
+# Information added by Drupal.org packaging script on 2017-07-19
+version: '8.x-3.0-alpha1'
+core: '8.x'
+project: 'graphql'
+datestamp: 1500477551

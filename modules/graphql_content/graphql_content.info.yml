@@ -1,0 +1,13 @@
+name: GraphQL Content
+type: module
+description: 'Automatically create GraphQL types and fields from Drupal content entities.'
+package: GraphQL
+configure: graphql_content.content_entity_schema
+# core: 8.x
+dependencies:
+  - graphql_core
+# Information added by Drupal.org packaging script on 2017-07-19
+version: '8.x-3.0-alpha1'
+core: '8.x'
+project: 'graphql'
+datestamp: 1500477551

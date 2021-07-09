@@ -1,56 +1,48 @@
-[![Build Status](https://img.shields.io/travis/drupal-graphql/graphql.svg)](https://travis-ci.org/drupal-graphql/graphql)
-[![Code Coverage](https://img.shields.io/codecov/c/github/drupal-graphql/graphql.svg)](https://codecov.io/gh/drupal-graphql/graphql)
-[![Code Quality](https://img.shields.io/scrutinizer/g/drupal-graphql/graphql.svg)](https://scrutinizer-ci.com/g/drupal-graphql/graphql/?branch=8.x-3.x)
-
 # GraphQL for Drupal
 
-This module lets you craft and expose a [GraphQL](http://graphql.org/) schema for [Drupal 8](https://www.drupal.org/8).
+[![Build Status](https://travis-ci.org/fubhy/graphql-drupal.svg?branch=8.x-3.x)](https://travis-ci.org/fubhy/graphql-drupal)
 
-It is is built around [https://github.com/webonyx/graphql-php](webonyx/graphql-php). As such, it supports
+This module lets you craft and expose a [GraphQL] schema for [Drupal 8].
+
+It is is built around https://github.com/Youshido/GraphQL. As such, it supports
 the full official GraphQL specification with all its features.
 
 You can use this module as a foundation for building your own schema through
 custom code or you can use and extend the generated schema using the plugin
-architecture and the provided plugin implementations form the sub-module.
+architecture of the contained sub-modules.
 
-For ease of development, it includes the [GraphiQL](https://github.com/graphql/graphiql/) interface at`/graphql/explorer`.
+For ease of development, it includes the [GraphiQL] interface at
+/graphql/explorer.
 
-## Quickstart
+[Drupal 8]: https://www.drupal.org/8
+[GraphQL]: http://graphql.org/
+[GraphiQL]: https://github.com/graphql/graphiql/
 
-To get a quick overview from the __query__ part of GraphQL in action watch the following video's.
+## Built-in generated schema
 
-[![Headless Drupal with GraphQL from scratch - part 01](https://img.youtube.com/vi/Fx1Gz-BVNx8/0.jpg)](https://www.youtube.com/watch?v=Fx1Gz-BVNx8)
-[![Headless Drupal with GraphQL from scratch - part 02](https://img.youtube.com/vi/Q0hTG5ASzx0/0.jpg)](https://www.youtube.com/watch?v=Q0hTG5ASzx0)
+The `modules` directory contains a set of modules that help to automatically
+create a schema from Drupal data structures and components. By enabling these
+sub-modules you can expose much of the Drupal data graph without writing a
+single line of code.
+
+Please refer to `modules/README.md` for more information.
 
 ## Example implementation
 
-Check out [https://github.com/fubhy/drupal-decoupled-app](https://github.com/fubhy/drupal-decoupled-app) for a complete example
+Check out https://github.com/fubhy/drupal-decoupled-app for a complete example
 of a fully decoupled React and GraphQL application. Feel free to use that
 repository as a starting point for your own decoupled application.
 
 ## Documentation
 
-[Documentation](doc/SUMMARY.md) is heavily worked on, but still far from complete.
+Please note that our documentation is outdated and in dire need of rewriting.
 This is due to the vast amount of improvements and additional features we've
 added to the module recently. As we are finishing up the 3.x version of this
 module we will be re-doing the documentation and record a series of screencasts.
 
-These blog posts provide additional information on how to use and extend the module
-as well as other other contributed modules supporting it:
-
-* [https://www.amazeelabs.com/en/blog/graphql-introduction](https://www.amazeelabs.com/en/blog/graphql-introduction)
-* [https://www.amazeelabs.com/en/blog/drupal-graphql-react-apollo](https://www.amazeelabs.com/en/blog/drupal-graphql-react-apollo)
-* [https://www.amazeelabs.com/en/blog/drupal-graphql-batteries-included](https://www.amazeelabs.com/en/blog/drupal-graphql-batteries-included)
-* [https://www.amazeelabs.com/en/blog/extending-graphql-part1-fields](https://www.amazeelabs.com/en/blog/extending-graphql-part1-fields)
-* [https://www.amazeelabs.com/en/blog/extending-graphql-part-2](https://www.amazeelabs.com/en/blog/extending-graphql-part-2)
-* [https://www.amazeelabs.com/en/blog/graphql-for-drupalers-fields](https://www.amazeelabs.com/en/blog/graphql-for-drupalers-fields)
-* [https://www.amazeelabs.com/en/blog/extending-graphql-part-3-mutations](https://www.amazeelabs.com/en/blog/extending-graphql-part-3-mutations)
-* [https://www.amazeelabs.com/en/blog/dont-push-it-using-graphql-twig](https://www.amazeelabs.com/en/blog/dont-push-it-using-graphql-twig)
-
 ## Resources
-
-* Project homepage: [https://www.drupal.org/project/graphql](https://www.drupal.org/project/graphql)
-* Contributing: [https://github.com/drupal-graphql/graphql](https://github.com/drupal-graphql/graphql)
-
-
+ 
+* Documentation: https://www.gitbook.com/book/fgm/graphql-for-drupal
+* Project homepage: https://www.drupal.org/project/graphql
+* Contributing: https://github.com/fubhy/graphql-drupal
 

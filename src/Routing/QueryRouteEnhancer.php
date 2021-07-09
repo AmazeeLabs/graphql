@@ -2,12 +2,12 @@
 
 namespace Drupal\graphql\Routing;
 
-use Drupal\Core\Routing\Enhancer\RouteEnhancerInterface;
+use Drupal\Core\Routing\EnhancerInterface;
 use Drupal\graphql\QueryMapProvider\QueryMapProviderInterface;
+use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Route;
 
-class QueryRouteEnhancer implements RouteEnhancerInterface {
+class QueryRouteEnhancer implements EnhancerInterface {
 
   /**
    * The query map provider service.
@@ -29,14 +29,12 @@ class QueryRouteEnhancer implements RouteEnhancerInterface {
   /**
    * {@inheritdoc}
    */
-  public function applies(Route $route) {
-    return $route->hasDefault('_graphql');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function enhance(array $defaults, Request $request) {
+    $route = $defaults[RouteObjectInterface::ROUTE_OBJECT];
+    if (!$route->hasDefault('_graphql')) {
+      return $defaults;
+    }
+
     if (!empty($defaults['_controller'])) {
       return $defaults;
     }

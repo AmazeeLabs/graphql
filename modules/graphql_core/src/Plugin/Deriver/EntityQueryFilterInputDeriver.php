@@ -66,7 +66,7 @@ class EntityQueryFilterInputDeriver extends DeriverBase implements ContainerDeri
         $properties = $definition->getPropertyDefinitions();
 
         $queryable_properties = array_filter($properties, function ($property) {
-          return $property instanceof BaseFieldDefinition && $property->hasCustomStorage();
+          return $property instanceof BaseFieldDefinition && !$property->hasCustomStorage();
         });
 
         // Don't even create the type if there are no queryable properties.
